@@ -60,6 +60,7 @@ export async function getDebugGraphData(): Promise<JSON | null> {
 
     // Slicing 1, -1 cause it's a json string and contains quotation around it.
     try {
+        response.result = response.result.replace(/\\'/g, "'");
         return JSON.parse(response.result.slice(1, -1));
     } catch {
         vscode.window.showErrorMessage(`Error parsing: ${response.result}`);
