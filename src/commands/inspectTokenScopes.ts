@@ -56,7 +56,7 @@ interface TokenInfo {
 /**
  * Handler for the Inspect Token Scopes command.
  * This command dumps all TextMate token scopes for the current Jac file.
- * 
+ *
  * @param context The extension context
  */
 export async function inspectTokenScopesHandler(context: vscode.ExtensionContext): Promise<void> {
