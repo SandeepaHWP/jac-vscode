@@ -348,6 +348,9 @@
 		"jsx": {
 			"patterns": [
 				{
+					"include": "#keyword-escape"
+				},
+				{
 					"include": "#jsx-tag-fragment"
 				},
 				{
@@ -364,9 +367,21 @@
 				}
 			]
 		},
+		"keyword-escape": {
+			"name": "meta.keyword-escape.jac",
+			"match": "(<>)([a-zA-Z_][a-zA-Z0-9_]*)",
+			"captures": {
+				"1": {
+					"name": "punctuation.definition.keyword-escape.jac"
+				},
+				"2": {
+					"name": "variable.other.escaped.jac"
+				}
+			}
+		},
 		"jsx-tag-fragment": {
 			"name": "meta.jsx.fragment.jac",
-			"begin": "(<>)",
+			"begin": "(<>)(?=\\s|$|<)",
 			"end": "(</>)",
 			"beginCaptures": {
 				"1": {
