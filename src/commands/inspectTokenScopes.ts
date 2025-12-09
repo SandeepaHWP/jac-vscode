@@ -39,16 +39,6 @@ export interface TokenizeResult {
     tokens: TokenInfo[];
 }
 
-/** Get token at a specific location */
-export function getTokenByLocation(
-    result: TokenizeResult,
-    line: number,
-    startCol: number,
-    endCol: number
-): TokenInfo | undefined {
-    return result.byLocation.get(`${line}:${startCol}-${endCol}`);
-}
-
 /**
  * Tokenize content using the Jac grammar.
  */

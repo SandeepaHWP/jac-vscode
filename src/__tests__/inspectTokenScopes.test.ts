@@ -10,9 +10,18 @@ import * as fs from 'fs';
 import {
     tokenizeContent,
     TokenizeResult,
-    TokenInfo,
-    getTokenByLocation
+    TokenInfo
 } from '../commands/inspectTokenScopes';
+
+/** Get token at a specific location */
+function getTokenByLocation(
+    result: TokenizeResult,
+    line: number,
+    startCol: number,
+    endCol: number
+): TokenInfo | undefined {
+    return result.byLocation.get(`${line}:${startCol}-${endCol}`);
+}
 
 // Test fixture paths
 const EXAMPLES_DIR = path.join(process.cwd(), 'examples');
