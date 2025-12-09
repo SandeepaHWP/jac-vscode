@@ -62,6 +62,23 @@ export interface TokenizeResult {
 }
 
 /**
+ * Helper to get token at a specific location from TokenizeResult
+ * @param result The tokenization result
+ * @param line Line number (1-based)
+ * @param startCol Start column (1-based)
+ * @param endCol End column (1-based)
+ * @returns TokenInfo if found, undefined otherwise
+ */
+export function getTokenByLocation(
+    result: TokenizeResult,
+    line: number,
+    startCol: number,
+    endCol: number
+): TokenInfo | undefined {
+    return result.byLocation.get(`${line}:${startCol}-${endCol}`);
+}
+
+/**
  * Tokenize content using the Jac grammar.
  * @param content The content to tokenize
  * @param grammarPath Path to the jac.tmLanguage.json file

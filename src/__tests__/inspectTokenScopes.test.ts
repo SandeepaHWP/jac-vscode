@@ -7,22 +7,20 @@
 
 import * as path from 'path';
 import * as fs from 'fs';
-import { tokenizeContent, TokenizeResult, TokenInfo } from '../commands/inspectTokenScopes';
+import { 
+    tokenizeContent, 
+    TokenizeResult, 
+    TokenInfo, 
+    getTokenByLocation 
+} from '../commands/inspectTokenScopes';
 
-// Read the actual app.jac file
-const appJacPath = path.join(process.cwd(), 'examples', 'app.jac');
-const appJacContent = fs.readFileSync(appJacPath, 'utf-8');
+// Test fixture paths
+const EXAMPLES_DIR = path.join(process.cwd(), 'examples');
+const GRAMMAR_PATH = path.join(process.cwd(), 'syntaxes', 'jac.tmLanguage.json');
+const WASM_PATH = path.join(process.cwd(), 'node_modules', 'vscode-oniguruma', 'release', 'onig.wasm');
 
-// Paths for grammar and wasm
-const grammarPath = path.join(process.cwd(), 'syntaxes', 'jac.tmLanguage.json');
-const wasmPath = path.join(process.cwd(), 'node_modules', 'vscode-oniguruma', 'release', 'onig.wasm');
-
-/**
- * Helper to get token at a specific location
- */
-function getToken(result: TokenizeResult, line: number, startCol: number, endCol: number): TokenInfo | undefined {
-    return result.byLocation.get(`${line}:${startCol}-${endCol}`);
-}
+// Load test fixture
+const appJacContent = fs.readFileSync(path.join(EXAMPLES_DIR, 'app.jac'), 'utf-8');
 
 /**
  * Helper to assert a token has expected text and contains expected scopes
@@ -35,7 +33,7 @@ function expectToken(
     expectedText: string,
     expectedScopes: string[]
 ): void {
-    const token = getToken(result, line, startCol, endCol);
+    const token = getTokenByLocation(result, line, startCol, endCol);
     expect(token).toBeDefined();
     expect(token!.text).toBe(expectedText);
     for (const scope of expectedScopes) {
@@ -47,7 +45,7 @@ describe('inspectTokenScopesHandler - Location Based Tests', () => {
     let result: TokenizeResult;
 
     beforeAll(async () => {
-        result = await tokenizeContent(appJacContent, grammarPath, wasmPath);
+        result = await tokenizeContent(appJacContent, GRAMMAR_PATH, WASM_PATH);
     });
 
     describe('Jac Keywords', () => {
@@ -156,7 +154,7 @@ describe('inspectTokenScopesHandler - Location Based Tests', () => {
         test('<>esc keyword escape', () => {
             // a = <>esc;
             // esc is at columns 11-14 (1-based)
-            const escToken = getToken(result, 19, 11, 14);
+            const escToken = getTokenByLocation(result, 19, 11, 14);
             expect(escToken).toBeDefined();
             expect(escToken!.text).toBe('esc');
             expect(escToken!.scopes).toContain('variable.other.escaped.jac');
@@ -165,7 +163,7 @@ describe('inspectTokenScopesHandler - Location Based Tests', () => {
         test('<> punctuation for keyword escape', () => {
             // a = <>esc;
             // <> is at columns 9-11 (1-based)
-            const punctToken = getToken(result, 19, 9, 11);
+            const punctToken = getTokenByLocation(result, 19, 9, 11);
             expect(punctToken).toBeDefined();
             expect(punctToken!.text).toBe('<>');
             expect(punctToken!.scopes).toContain('punctuation.definition.keyword-escape.jac');
@@ -177,14 +175,14 @@ describe('inspectTokenScopesHandler - Location Based Tests', () => {
             // <>
             //   <div>First</div>
             // </>
-            const fragmentOpen = getToken(result, 22, 13, 15);
+            const fragmentOpen = getTokenByLocation(result, 22, 13, 15);
             expect(fragmentOpen).toBeDefined();
             expect(fragmentOpen!.text).toBe('<>');
             expect(fragmentOpen!.scopes).toContain('punctuation.definition.tag.jsx.jac');
         });
 
         test('fragment closing tag </>', () => {
-            const fragmentClose = getToken(result, 29, 13, 16);
+            const fragmentClose = getTokenByLocation(result, 29, 13, 16);
             expect(fragmentClose).toBeDefined();
             expect(fragmentClose!.text).toBe('</>');
             expect(fragmentClose!.scopes).toContain('punctuation.definition.tag.jsx.jac');
