@@ -123,7 +123,7 @@ export async function tokenizeContent(
         const lineNumber = lineIndex + 1; // 1-based
 
         const lineTokens = grammar.tokenizeLine(line, ruleStack);
-        
+
         for (const token of lineTokens.tokens) {
             const tokenText = line.substring(token.startIndex, token.endIndex);
             // Skip whitespace-only tokens
@@ -146,7 +146,7 @@ export async function tokenizeContent(
             byLocation.set(location, tokenInfo);
             tokens.push(tokenInfo);
         }
-        
+
         ruleStack = lineTokens.ruleStack;
     }
 
@@ -186,7 +186,7 @@ export async function inspectTokenScopesHandler(context: vscode.ExtensionContext
     try {
         // Initialize oniguruma WASM
         const wasmPath = path.join(
-            context.extensionPath, 
+            context.extensionPath,
             'node_modules',
             'vscode-oniguruma',
             'release',

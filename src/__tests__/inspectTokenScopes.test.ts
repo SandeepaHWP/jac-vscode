@@ -1,17 +1,17 @@
 /*
  * Jest tests for inspectTokenScopesHandler functionality in VSCode extension.
  * Uses real vscode-textmate and vscode-oniguruma libraries for actual grammar testing.
- * 
+ *
  * Token locations use format: "line:startCol-endCol" (1-based)
  */
 
 import * as path from 'path';
 import * as fs from 'fs';
-import { 
-    tokenizeContent, 
-    TokenizeResult, 
-    TokenInfo, 
-    getTokenByLocation 
+import {
+    tokenizeContent,
+    TokenizeResult,
+    TokenInfo,
+    getTokenByLocation
 } from '../commands/inspectTokenScopes';
 
 // Test fixture paths

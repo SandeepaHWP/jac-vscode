@@ -1,5 +1,5 @@
 cl {
-    
+
     def app() -> any {
         [count, setCount] = useState(0);
         return <div>
@@ -17,7 +17,7 @@ cl{
 
  def app{
     a = <>esc;
-        
+
         fragment = (
             <>
                 <div>
@@ -28,7 +28,7 @@ cl{
                 </div>
             </>
         );
-    }  
+    }
 }
 
 
@@ -42,7 +42,7 @@ cl import from react {useState}
 
 
 cl {
-    
+
     def app() -> any {
         let [count, setCount] = useState(0);
         return <div>
