@@ -107,7 +107,7 @@ export class EnvManager {
                         if (env.includes('conda') || env.includes('miniconda') || env.includes('anaconda')) {
                             const envMatch = env.match(/envs[\/\\]([^\/\\]+)/);
                             displayName = envMatch ? `Jac (${envMatch[1]})` : 'Jac';
-                        } 
+                        }
                         // All other environments (venv, local, etc.)
                         else {
                             const venvMatch = env.match(/([^\/\\]*(?:\.?venv|virtualenv)[^\/\\]*)/);
@@ -160,7 +160,7 @@ export class EnvManager {
 
             if (!choice || choice.env === "manual" || choice.env === "browse") {
                 this.updateStatusBar();
-                
+
                 if (choice?.env === "manual") {
                     await this.handleManualPathEntry();
                 } else if (choice?.env === "browse") {
@@ -180,7 +180,7 @@ export class EnvManager {
                 `Selected Jac environment: ${choice.label}`,
                 { detail: `Path: ${displayPath}` }
             );
-            
+
             // Restart language server to use new environment
             await this.restartLanguageServer();
         } catch (error: any) {
