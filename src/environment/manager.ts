@@ -8,14 +8,14 @@ export class EnvManager {
     private context: vscode.ExtensionContext;
     private statusBar: vscode.StatusBarItem;
     private jacPath: string | undefined;
-    private onLspNeeded?: () => Promise<void>; // NEW: callback to start LSP
+    private onLspNeeded?: () => Promise<void>; // callback to start LSP
 
-    constructor(context: vscode.ExtensionContext, onLspNeeded?: () => Promise<void>) { // NEW: callback parameter
+    constructor(context: vscode.ExtensionContext, onLspNeeded?: () => Promise<void>) { // callback parameter
         this.context = context;
         this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 100);
         this.statusBar.command = 'jaclang-extension.selectEnv';
         context.subscriptions.push(this.statusBar);
-        this.onLspNeeded = onLspNeeded; // NEW: store callback
+        this.onLspNeeded = onLspNeeded; // store callback
     }
 
 
@@ -340,9 +340,9 @@ export class EnvManager {
             } catch (error: any) {
                 vscode.window.showErrorMessage(`Failed to restart language server: ${error.message || error}`);
             }
-        } else if (this.onLspNeeded) { // NEW: trigger callback if LSP doesn't exist
+        } else if (this.onLspNeeded) { // trigger callback if LSP doesn't exist
             vscode.window.showInformationMessage('Starting Jac Language Server with selected environment...');
-            await this.onLspNeeded(); // NEW: start LSP without window reload
+            await this.onLspNeeded(); // start LSP without window reload
         }
     }
 }
