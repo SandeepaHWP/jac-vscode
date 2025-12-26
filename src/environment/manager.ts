@@ -41,7 +41,7 @@ export class EnvManager {
         }
 
         if (!this.jacPath) {
-            await this.setupJacFileOpenListener();// Check existing and listen for new .jac files
+            this.setupJacFileOpenListener();// Check existing and listen for new .jac files
         }
 
         this.updateStatusBar();
