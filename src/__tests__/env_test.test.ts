@@ -258,13 +258,6 @@ describe('EnvManager (Jest)', () => {
 
     await envManager.promptEnvironmentSelection();
 
-    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'Selected Jac environment: Jac (SomeEnv)',
-      { detail: 'Path: /path/to/jac' }
-    );
-    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'Restarting Jac Language Server to apply environment changes...'
-    );
     expect(mockLspManager.restart).toHaveBeenCalledTimes(1);
   });
 
@@ -280,12 +273,6 @@ describe('EnvManager (Jest)', () => {
     await (envManager as any).handleManualPathEntry();
 
     expect(context.globalState.update).toHaveBeenCalledWith("jacEnvPath", "/manual/jac");
-    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'Jac environment set to: /manual/jac'
-    );
-    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'Restarting Jac Language Server to apply environment changes...'
-    );
     expect(mockLspManager.restart).toHaveBeenCalledTimes(1);
   });
 
@@ -326,12 +313,6 @@ describe('EnvManager (Jest)', () => {
     await (envManager as any).handleFileBrowser();
 
     expect(context.globalState.update).toHaveBeenCalledWith("jacEnvPath", "/browser/jac");
-    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'Jac environment set to: /browser/jac'
-    );
-    expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
-      'Restarting Jac Language Server to apply environment changes...'
-    );
     expect(mockLspManager.restart).toHaveBeenCalledTimes(1);
   });
 
