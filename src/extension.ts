@@ -33,7 +33,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
         setupVisualDebuggerWebview(context);
 
-        const jacPath = envManager.getJacPath(); 
+        const jacPath = envManager.getJacPath();
         const isJacAvailable = await validateJacExecutable(jacPath); // Check if Jac is available before starting LSP
 
         if (isJacAvailable) {
