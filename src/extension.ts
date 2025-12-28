@@ -3,6 +3,7 @@ import { EnvManager } from './environment/manager';
 import { registerAllCommands } from './commands';
 import { setupVisualDebuggerWebview } from './webview/visualDebugger';
 import { LspManager } from './lsp/lsp_manager';
+import { validateJacExecutable } from './utils/envDetection';
 
 let lspManager: LspManager | undefined;
 
@@ -16,9 +17,7 @@ export async function createAndStartLsp(envManager: EnvManager, context: vscode.
         try {
             lspManager = new LspManager(envManager);
             await lspManager.start();
-            context.subscriptions.push({
-                dispose: () => lspManager?.stop()
-            });
+            context.subscriptions.push({ dispose: () => lspManager?.stop() });
         } catch (error) {
             lspManager = undefined;
             throw error;
@@ -34,21 +33,18 @@ export async function activate(context: vscode.ExtensionContext) {
 
         setupVisualDebuggerWebview(context);
 
-        // Only start LSP if valid environment exists
-        if (envManager.getJacPath() !== 'jac' && envManager.getJacPath() !== 'jac.exe') {
+        const jacPath = envManager.getJacPath(); 
+        const isJacAvailable = await validateJacExecutable(jacPath); // Check if Jac is available before starting LSP
+
+        if (isJacAvailable) {
             try {
                 await createAndStartLsp(envManager, context);
             } catch (error) {
                 console.error('LSP failed to start during activation:', error);
-                vscode.window.showWarningMessage(
-                    'Jac Language Server failed to start. Select Environment to retry.'
-                );
             }
-        } else {
-            console.log('No Jac environment detected at startup. LSP will start when you select an environment.');
         }
+        // If Jac not available, silently skip - user can select environment later
     } catch (error) {
-        vscode.window.showErrorMessage(`Failed to activate Jac extension: ${error}`);
         console.error('Extension activation error:', error);
     }
 }
