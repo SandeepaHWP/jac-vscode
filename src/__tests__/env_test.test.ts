@@ -126,7 +126,7 @@ describe('EnvManager (Jest)', () => {
    *
    * - Status bar text is updated to show current Jac environment
    * - Status bar is properly displayed to the user
-   * 
+   *
    */
   test('should update status bar when jacPath is set', () => {
 
@@ -218,7 +218,7 @@ describe('EnvManager (Jest)', () => {
       'Selected Jac environment: Jac (MyEnv)',
       { detail: 'Path: /path/to/jac' }
     );
-    
+
     expect(createAndStartLsp).toHaveBeenCalledTimes(1);
   });
 
@@ -252,7 +252,7 @@ describe('EnvManager (Jest)', () => {
    * - EnvManager correctly loads a previously saved environment path
    * - Status bar is updated with the saved environment
    * - No prompting occurs when valid saved environment exists
-   * 
+   *
    */
   test('should initialize with saved environment path', async () => {
 
