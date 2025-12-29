@@ -106,7 +106,10 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 1: Default fallback behavior when no env is configured
+   * TEST-1: Default fallback when no environment is configured
+   *
+   * - EnvManager provides a sensible default when no Jac environment is saved
+   * - The default is platform-appropriate (jac.exe on Windows, jac on Unix)
    */
   test('should fallback to jac in PATH if no saved env', () => {
     // Call the method that should return the Jac executable path
@@ -117,7 +120,10 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 2: Status bar updates when environment is set
+   * TEST-2: Status bar updates correctly when environment is set
+   *
+   * - Status bar text is updated to show current Jac environment
+   * - Status bar is properly displayed to the user
    */
   test('should update status bar when jacPath is set', () => {
 
@@ -128,7 +134,10 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 3: Manual path entry - successful validation
+   * TEST-3: Manual path entry with successful validation
+   *
+   * - Valid manual path is accepted and saved to global state
+   * - User receives confirmation message
    */
   test('should accept manual path if validate passes', async () => {
     (getLspManager as jest.Mock).mockReturnValue(undefined);
@@ -148,7 +157,10 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 4: Manual path entry - validation failure and retry
+   * TEST-4: Manual path entry with validation failure
+   *
+   * - Invalid paths are rejected with error message
+   * - User is offered retry or browse for file option
    */
   test('should reject invalid manual path and retry', async () => {
 
@@ -170,7 +182,10 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 5: Successful environment selection from auto-detected environments
+   * TEST-5: Auto-detected environment selection
+   *
+   * - Detected environments are presented to user via QuickPick
+   * - Selected environment is saved to global state
    */
   test('should prompt environment selection when envs found', async () => {
     (getLspManager as jest.Mock).mockReturnValue(undefined);
@@ -193,7 +208,11 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 6: Warning when no environments found, QuickPick still shown
+   * TEST-6: No environments found handling
+   *
+   * - Warning message is shown when no environments are detected
+   * - QuickPick dialog still appears for manual selection fallback
+   * - System provides path to install Jac or select manually
    */
   test('should show warning when no envs are found and still show QuickPick', async () => {
 
@@ -213,7 +232,10 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 7: Initialization with saved environment path
+   * TEST-7: Initialization with saved environment
+   *
+   * - Saved environment path is loaded and validated on init
+   * - Status bar is updated to reflect the loaded environment
    */
   test('should initialize with saved environment path', async () => {
 
@@ -227,7 +249,11 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 8: User cancels environment selection dialog
+   * TEST-8: User cancellation of environment selection
+   *
+   * - User can dismiss the environment selection dialog without making changes
+   * - Saved state remains unchanged when user cancels
+   * - No side effects occur from cancellation
    */
   test('should handle user cancellation of environment selection', async () => {
 
@@ -241,7 +267,9 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 9: QuickPick env selection, LSP exists -> restart
+   * TEST-9: LSP restart on environment selection
+   *
+   * - LSP is restarted when environment is selected and manager exists
    */
   test("restarts LSP when manager exists", async () => {
     (envDetection.findPythonEnvsWithJac as jest.Mock).mockResolvedValue([
@@ -262,7 +290,10 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 10: Manual path success, LSP exists -> restart
+   * TEST-10: LSP restart on manual path entry
+   *
+   * - Valid manual path is saved to global state
+   * - LSP is restarted if manager exists
    */
   test("manual path success restarts LSP if manager exists", async () => {
     (envDetection.validateJacExecutable as jest.Mock).mockResolvedValue(true);
@@ -278,7 +309,11 @@ describe('EnvManager (Jest)', () => {
 
 
   /**
-   * TEST 11: File browser success, LSP missing
+   * TEST-11: File browser path selection without LSP
+   *
+   * - User can browse and select Jac executable via file dialog
+   * - Selected path is validated and saved to global state
+   * - User receives confirmation message
    */
   test("file browser success with no LSP", async () => {
 
@@ -299,7 +334,10 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST 12: File browser success, LSP exists -> restart
+   * TEST-12: LSP restart on file browser selection
+   *
+   * - Path selected via file browser is saved to global state
+   * - LSP is restarted if manager exists
    */
   test("file browser success restarts LSP if manager exists", async () => {
 
@@ -318,7 +356,10 @@ describe('EnvManager (Jest)', () => {
 
 
   /**
-   * TEST 13: Invalid saved env during init -> clear state
+   * TEST-13: Invalid saved environment cleanup on init
+   *
+   * - Invalid saved path is cleared from global state during init
+   * - User is warned about the invalid environment
    */
   test("invalid saved env in init clears jacEnvPath", async () => {
     context.globalState.get.mockReturnValue("/invalid/jac");
