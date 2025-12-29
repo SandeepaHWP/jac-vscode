@@ -38,6 +38,7 @@ export class LspManager {
         );
 
         await this.client.start();
+        vscode.window.showInformationMessage('Jac Language Server started!');
     }
 
     public async stop(): Promise<void> {
