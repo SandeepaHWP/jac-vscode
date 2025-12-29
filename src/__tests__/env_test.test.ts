@@ -107,10 +107,11 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST-1: Default fallback when no environment is configured
+   * TEST-1: Default behavior when no environment is configured
    *
-   * - EnvManager provides a sensible default when no Jac environment is saved
-   * - The default is platform-appropriate (jac.exe on Windows, jac on Unix)
+   * - EnvManager should provide a sensible default when no Jac environment is saved
+   * - The default should be platform-appropriate ('jac.exe' on Windows, 'jac' on Unix)
+   *
    */
   test('should fallback to jac in PATH if no saved env', () => {
     // Call the method that should return the Jac executable path
@@ -121,10 +122,11 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST-2: Status bar updates correctly when environment is set
+   * TEST 2: Status bar updates correctly when environment is set
    *
    * - Status bar text is updated to show current Jac environment
    * - Status bar is properly displayed to the user
+   * 
    */
   test('should update status bar when jacPath is set', () => {
 
@@ -135,10 +137,11 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST-3: Manual path entry with successful validation
+   * TEST 3: Manual path entry - successful validation - No LSP manager
    *
-   * - Valid manual path is accepted and saved to global state
-   * - User receives confirmation message
+   * What we're testing:
+   * - User can manually enter a path to a Jac executable
+   * - Valid paths are accepted and saved
    * - LSP manager is created and started when not already running
    */
   test('should accept manual path if validate passes', async () => {
@@ -152,6 +155,7 @@ describe('EnvManager (Jest)', () => {
 
     expect(envDetection.validateJacExecutable).toHaveBeenCalledWith('/fake/jac');
     expect(context.globalState.update).toHaveBeenCalledWith('jacEnvPath', '/fake/jac');
+
     // first message: set env
     expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
       'Jac environment set to: /fake/jac'
@@ -161,10 +165,11 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST-4: Manual path entry with validation failure
+   * TEST 4: Manual path entry - validation failure and retry
    *
    * - Invalid paths are rejected with error message
-   * - User is offered retry or browse for file option
+   * - User is prompted to retry after entering invalid path
+   * - Error handling works correctly in the retry flow
    * - And he escapes by cancelling the input box
    */
   test('should reject invalid manual path and retry', async () => {
@@ -187,10 +192,11 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST-5: Auto-detected environment selection
+   * TEST 5: Successful environment selection from auto-detected environments
    *
-   * - Detected environments are presented to user via QuickPick
-   * - Selected environment is saved to global state
+   * - Auto-detection finds available Jac environments
+   * - User can select from a list of found environments
+   * - Selected environment is saved and applied
    * - LSP manager is created and started when not already running
    */
   test('should prompt environment selection when envs found', async () => {
@@ -207,20 +213,21 @@ describe('EnvManager (Jest)', () => {
     await envManager.promptEnvironmentSelection();
 
     expect(context.globalState.update).toHaveBeenCalledWith('jacEnvPath', '/path/to/jac');
+
     expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
       'Selected Jac environment: Jac (MyEnv)',
       { detail: 'Path: /path/to/jac' }
     );
-    // LSP is created and started when manager doesn't exist
+    
     expect(createAndStartLsp).toHaveBeenCalledTimes(1);
   });
 
   /**
-   * TEST-6: No environments found handling
+   * TEST 6: Warning displayed when no environments are found
    *
-   * - Warning message is shown when no environments are detected
-   * - QuickPick dialog still appears for manual selection fallback
-   * - System provides path to install Jac or select manually
+   * Updated behavior:
+   * - Shows non-blocking warning with only 'Install Jac Now'
+   * - STILL shows QuickPick (manual/browse options)
    */
   test('should show warning when no envs are found and still show QuickPick', async () => {
 
@@ -240,10 +247,12 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST-7: Initialization with saved environment
+   * TEST 7: Initialization with saved environment path
    *
-   * - Saved environment path is loaded and validated on init
-   * - Status bar is updated to reflect the loaded environment
+   * - EnvManager correctly loads a previously saved environment path
+   * - Status bar is updated with the saved environment
+   * - No prompting occurs when valid saved environment exists
+   * 
    */
   test('should initialize with saved environment path', async () => {
 
@@ -257,11 +266,28 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST-8: User cancellation of environment selection
+   * TEST 8: Initialization handles invalid saved environment
    *
-   * - User can dismiss the environment selection dialog without making changes
-   * - Saved state remains unchanged when user cancels
-   * - No side effects occur from cancellation
+   * - Invalid saved environments are detected and cleared
+   * - User is warned about the invalid environment
+   */
+  test('should handle invalid saved environment during init', async () => {
+    context.globalState.get.mockReturnValue('/invalid/jac/path');
+    (envDetection.validateJacExecutable as jest.Mock).mockResolvedValue(false);
+    (vscode.window.showWarningMessage as jest.Mock).mockResolvedValue(undefined);
+
+    await envManager.init();
+
+    expect(context.globalState.update).toHaveBeenCalledWith('jacEnvPath', undefined);
+  });
+
+  /**
+   * TEST 9: User cancels environment selection
+   *
+   * - Graceful handling when user cancels the environment selection dialog
+   * - Status bar still updates appropriately even when user cancels
+   * - No errors occur when user dismisses dialogs
+   *
    */
   test('should handle user cancellation of environment selection', async () => {
 
@@ -275,21 +301,18 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST-9: LSP restart on environment selection
+   * TEST 10: LSP restart without VSCode reload on environment change
    *
-   * - LSP is restarted when environment is selected and manager exists
+   * - When LSP manager is available, it should restart the language server
+   * - Environment change is saved to global state
    */
   test("restarts LSP when manager exists", async () => {
-    (envDetection.findPythonEnvsWithJac as jest.Mock).mockResolvedValue([
-      "/path/to/jac",
-    ]);
-
+    (envDetection.findPythonEnvsWithJac as jest.Mock).mockResolvedValue(['/new/jac/path',]);
     (vscode.window.showQuickPick as jest.Mock).mockResolvedValue({
-      env: "/path/to/jac",
-      label: "Jac (SomeEnv)",
-      description: "/path/to/jac",
+      env: '/new/jac/path',
+      label: 'Jac (NewEnv)',
+      description: '/new/jac/path',
     });
-
     (getLspManager as jest.Mock).mockReturnValue(mockLspManager);
 
     await envManager.promptEnvironmentSelection();
@@ -298,7 +321,7 @@ describe('EnvManager (Jest)', () => {
   });
 
   /**
-   * TEST-10: LSP restart on manual path entry
+   * TEST 11: LSP restart on manual path entry
    *
    * - Valid manual path is saved to global state
    * - LSP is restarted if manager exists
@@ -310,28 +333,23 @@ describe('EnvManager (Jest)', () => {
     (getLspManager as jest.Mock).mockReturnValue(mockLspManager);
 
     await (envManager as any).handleManualPathEntry();
-
     expect(context.globalState.update).toHaveBeenCalledWith("jacEnvPath", "/manual/jac");
     expect(mockLspManager.restart).toHaveBeenCalledTimes(1);
   });
 
-
   /**
-   * TEST-11: File browser path selection without LSP
+   * TEST 12: File browser path selection without LSP
    *
    * - User can browse and select Jac executable via file dialog
    * - Selected path is validated and saved to global state
-   * - User receives confirmation message
    * - LSP manager is created and started when not already running
    */
   test("file browser success with no LSP", async () => {
-
     (getLspManager as jest.Mock).mockReturnValue(undefined);
-
     (envDetection.validateJacExecutable as jest.Mock).mockResolvedValue(true);
     (vscode.window.showOpenDialog as jest.Mock).mockResolvedValue([
       { fsPath: "/browser/jac" },
-    ]);
+  ]);
 
     await (envManager as any).handleFileBrowser();
 
@@ -339,20 +357,18 @@ describe('EnvManager (Jest)', () => {
     expect(vscode.window.showInformationMessage).toHaveBeenCalledWith(
       'Jac environment set to: /browser/jac'
     );
-    
+
     expect(createAndStartLsp).toHaveBeenCalledTimes(1);
   });
 
   /**
-   * TEST-12: LSP restart on file browser selection
+   * TEST 13: LSP restart on file browser selection
    *
    * - Path selected via file browser is saved to global state
    * - LSP is restarted if manager exists
    */
   test("file browser success restarts LSP if manager exists", async () => {
-
     (getLspManager as jest.Mock).mockReturnValue(mockLspManager);
-
     (envDetection.validateJacExecutable as jest.Mock).mockResolvedValue(true);
     (vscode.window.showOpenDialog as jest.Mock).mockResolvedValue([
       { fsPath: "/browser/jac" },
@@ -363,22 +379,4 @@ describe('EnvManager (Jest)', () => {
     expect(context.globalState.update).toHaveBeenCalledWith("jacEnvPath", "/browser/jac");
     expect(mockLspManager.restart).toHaveBeenCalledTimes(1);
   });
-
-
-  /**
-   * TEST-13: Invalid saved environment cleanup on init
-   *
-   * - Invalid saved path is cleared from global state during init
-   * - User is warned about the invalid environment
-   */
-  test("invalid saved env in init clears jacEnvPath", async () => {
-    context.globalState.get.mockReturnValue("/invalid/jac");
-    (envDetection.validateJacExecutable as jest.Mock).mockResolvedValue(false);
-    (vscode.window.showWarningMessage as jest.Mock).mockResolvedValue(undefined);
-
-    await envManager.init();
-
-    expect(context.globalState.update).toHaveBeenCalledWith("jacEnvPath", undefined);
-  });
-
 });
