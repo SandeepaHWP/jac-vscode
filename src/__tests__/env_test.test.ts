@@ -307,13 +307,13 @@ describe('EnvManager (Jest)', () => {
    * - Environment change is saved to global state
    */
   test("restarts LSP when manager exists", async () => {
-    (envDetection.findPythonEnvsWithJac as jest.Mock).mockResolvedValue(['/new/jac/path',]);
+    (getLspManager as jest.Mock).mockReturnValue(mockLspManager);
+    (envDetection.findPythonEnvsWithJac as jest.Mock).mockResolvedValue(['/new/jac/path']);
     (vscode.window.showQuickPick as jest.Mock).mockResolvedValue({
       env: '/new/jac/path',
       label: 'Jac (NewEnv)',
       description: '/new/jac/path',
     });
-    (getLspManager as jest.Mock).mockReturnValue(mockLspManager);
 
     await envManager.promptEnvironmentSelection();
 
