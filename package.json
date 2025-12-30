@@ -225,10 +225,9 @@
     "watch": "tsc -b -w",
     "deploy": "vsce publish --yarn",
     "vsce-package": "mkdir build && vsce package -o build/jac.vsix",
-    "test": "jest",
+    "test": "npm run test:unit && npm run test:integration",
     "test:unit": "jest",
-    "test:integration": "npm run compile && node ./out/test/runTest.js",
-    "test:all": "npm run test:unit && npm run test:integration"
+    "test:integration": "npm run compile && node ./out/test/runTest.js"
   },
   "extensionDependencies": [
     "ms-python.python"
