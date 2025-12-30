@@ -4,3 +4,4 @@ vendor/
 .env
 .vscode/
 .jaccache/
+.vscode-test/
