@@ -33,7 +33,7 @@ describe('Extension Integration Tests', () => {
         // Verify test workspace with sample files is properly opened
         it('should load test workspace with fixtures', () => {
             const folders = vscode.workspace.workspaceFolders;
-            
+
             expect(folders).to.exist;
             expect(folders!.length).to.equal(1);
             expect(folders![0].uri.fsPath).to.include('fixtures/workspace');
@@ -43,7 +43,7 @@ describe('Extension Integration Tests', () => {
         it('should open sample.jac and detect language correctly', async () => {
             const filePath = path.join(workspacePath, 'sample.jac');
             const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
-            
+
             expect(doc).to.exist;
             expect(doc.fileName).to.include('sample.jac');
             expect(doc.languageId).to.equal('jac');
