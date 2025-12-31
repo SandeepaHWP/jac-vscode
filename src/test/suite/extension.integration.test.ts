@@ -4,7 +4,7 @@ import * as path from 'path';
 
 /**
  * Extension Integration Tests
- * 
+ *
  * Test 1: Extension Activation
  * Test 2: Environment Detection
  * Test 3: Advanced Environment Management
@@ -241,7 +241,7 @@ describe('Extension Integration Tests', () => {
             expect(currentPath).to.not.equal(invalidPath);
         });
     });
-    
+
 
     describe('Test 5: Environment Unavailability Handling', () => {
         let envManager: any;
