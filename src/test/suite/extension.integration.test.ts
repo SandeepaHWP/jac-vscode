@@ -39,7 +39,7 @@ describe('Extension Integration Tests', () => {
         it('should open sample.jac and detect language correctly', async () => {
             const filePath = path.join(workspacePath, 'sample.jac');
             const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
-            
+
             expect(doc).to.exist;
             expect(doc.fileName).to.include('sample.jac');
             expect(doc.languageId).to.equal('jac');
