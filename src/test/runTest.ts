@@ -5,10 +5,10 @@
 
 import * as path from 'path';
 import { runTests, downloadAndUnzipVSCode, resolveCliArgsFromVSCodeExecutablePath } from '@vscode/test-electron';
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
 
 async function main() {
 	try {
@@ -20,8 +20,13 @@ async function main() {
 		const [cli, ...args] = resolveCliArgsFromVSCodeExecutablePath(vscodeExecutablePath);
 
 		console.log('Installing dependencies...');
-		await execAsync(`"${cli}" ${args.join(' ')} --install-extension ms-python.python`);
-		console.log('✓ Dependencies installed\n');
+		
+		try {
+			await execFileAsync(cli, [...args, '--install-extension', 'ms-python.python']);
+			console.log('✓ Dependencies installed\n');
+		} catch (err) {
+			console.warn('⚠️ Extension installation failed:', (err as Error).message);
+		}
 
 		console.log('📋 Starting integration tests');
 		console.log(`   Extension: ${extensionDevelopmentPath}`);
