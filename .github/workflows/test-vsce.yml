@@ -27,3 +27,9 @@ jobs:
 
       - name: Run Jest Tests
         run: npm test
+
+      - name: Install xvfb (virtual display for headless testing)
+        run: sudo apt-get update && sudo apt-get install -y xvfb
+
+      - name: Run Integration Tests
+        run: xvfb-run -a npm run test:integration
