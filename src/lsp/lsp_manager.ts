@@ -65,7 +65,6 @@ export class LspManager {
             // Small delay to ensure proper cleanup before restarting
             await new Promise(resolve => setTimeout(resolve, 500));
             await this.start();
-
         } catch (error) {
             vscode.window.showErrorMessage(`Failed to restart Jac Language Server: ${error}`);
             throw error;
