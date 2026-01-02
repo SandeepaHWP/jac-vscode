@@ -37,7 +37,12 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
     describe('Phase 1: Initial Extension State - No Environment', () => {
         let envManager: any;
 
-        before(async () => {
+        before(async function () {
+            this.timeout(30_000);
+            // Mock the environment prompts to prevent blocking during test
+            vscode.window.showWarningMessage = async () => undefined as any;
+            vscode.window.showInformationMessage = async () => undefined as any;
+            
             // Activate extension and get EnvManager for testing
             const ext = vscode.extensions.getExtension('jaseci-labs.jaclang-extension');
             await ext!.activate();
@@ -150,7 +155,8 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
             return null;
         }
 
-        before(async () => {
+        before(async function () {
+            this.timeout(30_000);
             // Initialize paths and environment manager
             const detectedPython = await detectPython();
             if (!detectedPython) {

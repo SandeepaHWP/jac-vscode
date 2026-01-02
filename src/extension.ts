@@ -1,15 +1,15 @@
-import * as vscode from "vscode";
-import { EnvManager } from "./environment/manager";
-import { registerAllCommands } from "./commands";
-import { setupVisualDebuggerWebview } from "./webview/visualDebugger";
-import { LspManager } from "./lsp/lsp_manager";
-import { validateJacExecutable } from "./utils/envDetection";
+import * as vscode from 'vscode';
+import { EnvManager } from './environment/manager';
+import { registerAllCommands } from './commands';
+import { setupVisualDebuggerWebview } from './webview/visualDebugger';
+import { LspManager } from './lsp/lsp_manager';
+import { validateJacExecutable } from './utils/envDetection';
 
 let lspManager: LspManager | undefined;
 let envManager: EnvManager | undefined;
 
 export function getLspManager(): LspManager | undefined {
-  return lspManager;
+    return lspManager;
 }
 
 export function getEnvManager(): EnvManager | undefined {
@@ -36,13 +36,9 @@ export async function activate(context: vscode.ExtensionContext) {
         registerAllCommands(context, envManager);
         await envManager.init();
 
-export async function activate(context: vscode.ExtensionContext) {
-  try {
-    const envManager = new EnvManager(context);
-    registerAllCommands(context, envManager);
-    await envManager.init();
+        setupVisualDebuggerWebview(context);
 
-        const jacPath = envManager.getJacPath();
+        const jacPath = envManager.getJacPath(); 
         const isJacAvailable = await validateJacExecutable(jacPath);
 
         if (isJacAvailable) {
@@ -60,10 +56,6 @@ export async function activate(context: vscode.ExtensionContext) {
     } catch (error) {
         console.error('Extension activation error:', error);
     }
-    // If Jac not available, silently skip - user can select environment later
-  } catch (error) {
-    console.error("Extension activation error:", error);
-  }
 }
 
 export function deactivate(): Thenable<void> | undefined {
