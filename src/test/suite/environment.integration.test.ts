@@ -279,7 +279,7 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
             expect(foundVenvJac).to.be.true;
 
             // Trigger environment selection command
-            vscode.commands.executeCommand('jaclang-extension.selectEnv');
+            await vscode.commands.executeCommand('jaclang-extension.selectEnv');
             await new Promise(resolve => setTimeout(resolve, 1500));
 
             // Navigate to .venv option in quick pick menu
