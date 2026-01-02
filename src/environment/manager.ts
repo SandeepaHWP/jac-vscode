@@ -118,7 +118,7 @@ export class EnvManager {
 
                 const detectedItems = envs.map(env => {
                     const isGlobal = env === 'jac' || env === 'jac.exe' ||
-                        pathPartsFromEnv.some(dir => path.join(dir, path.basename(env)) === env);
+                        pathPartsFromEnv.some(dir =>path.join(dir, path.basename(env)) === env);
 
                     let displayName = '';
 
@@ -164,7 +164,7 @@ export class EnvManager {
 
             // Show QuickPick
             const choice = await vscode.window.showQuickPick(quickPickItems, {
-                placeHolder: envs.length > 0 ? `Select Jac environment (${envs.length} found)`: 'Select Jac environment (none detected yet)',
+                placeHolder: envs.length > 0 ? `Select Jac environment (${envs.length} found)` : 'Select Jac environment (none detected yet)',
                 matchOnDescription: true,
                 matchOnDetail: true,
                 ignoreFocusOut: true
