@@ -51,7 +51,7 @@ export async function activate(context: vscode.ExtensionContext) {
         console.error("LSP failed to start during activation:", error);
       }
     }
-    
+
     return {
         getEnvManager: () => envManager,
         getLspManager: () => lspManager
