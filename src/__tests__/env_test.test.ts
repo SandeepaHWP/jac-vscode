@@ -278,6 +278,7 @@ describe('EnvManager (Jest)', () => {
     await envManager.init();
 
     expect(context.globalState.update).toHaveBeenCalledWith('jacEnvPath', undefined);
+    expect((envManager as any).statusBar.text).toContain('No Env');
     expect(vscode.window.showWarningMessage).toHaveBeenCalled();
   });
 
