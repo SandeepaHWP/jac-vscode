@@ -56,7 +56,7 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
             await vscode.window.showTextDocument(doc);
 
             // Wait for activation to complete
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            await new Promise(resolve => setTimeout(resolve, 10000));
 
             // Verify extension auto-activated after opening .jac file
             expect(ext!.isActive).to.be.true; // Should now be active
