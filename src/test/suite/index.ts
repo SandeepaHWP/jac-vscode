@@ -21,9 +21,23 @@ export async function run(): Promise<void> {
 	return new Promise((resolve, reject) => {
 		glob('suite/**/**.test.js', { cwd: testsRoot })
 			.then((files) => {
-				console.log(`\n🧪 Found ${files.length} test file(s)`);
+				// Define test execution priority (lower number = earlier execution)
+				// IMPORTANT: Order is critical for test state sharing:
+				// 1. Environment setup creates venv + installs jaclang
+				// 2. LSP tests need the environment to be active
+				// 3. Commands tests are DESTRUCTIVE (uninstall/delete venv, so must run last)
+				const getTestPriority = (filename: string): number => {
+					if (filename.includes('environment.integration')) return 1; // First - Setup venv + jaclang
+					if (filename.includes('lsp.integration')) return 2;         // Second - Test LSP (needs environment)
+					if (filename.includes('commands.integration')) return 3;    // Third - Test commands (includes cleanup)
+				};
 
-				files.forEach(f => {
+				// Sort test files by priority
+				const sortedFiles = files.sort((a, b) => getTestPriority(a) - getTestPriority(b));
+
+				console.log(`\n🧪 Found ${sortedFiles.length} test file(s)`);
+
+				sortedFiles.forEach(f => {
 					const filePath = path.resolve(testsRoot, f);
 					console.log(`   → ${f}`);
 					mocha.addFile(filePath);
@@ -50,4 +64,3 @@ export async function run(): Promise<void> {
 			});
 	});
 }
-
