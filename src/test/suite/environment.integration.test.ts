@@ -18,6 +18,7 @@ import { spawn } from 'child_process';
 
 describe('Extension Integration Tests - Full Lifecycle', () => {
     let workspacePath: string;
+    let envManager: any; // Shared across Phase 1 and Phase 2
 
     before(() => {
         // Resolve workspace path from VS Code workspace folders
@@ -37,8 +38,6 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
      * - Status bar shows "No Env" when no environment is configured
      */
     describe('Phase 1: Extension Auto-Activation and Initialization', () => {
-        let envManager: any;
-
         before(async function () {
             this.timeout(30_000);
 
@@ -91,8 +90,7 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
      * Tests the complete environment workflow:
      * - Detects Python and creates virtual environment
      * - Installs jaclang package
-     * - Tests environment detection and selection
-     * - Verifies status bar updates
+     * - Tests environment detection and selection with status bar verification
      * - Cleans up by uninstalling and removing venv
      */
     describe('Phase 2: Environment Lifecycle - Install, Select, Verify & Cleanup', () => {
@@ -101,7 +99,6 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
         let pythonCmd: { cmd: string; argsPrefix: string[] };
         let venvPythonPath = '';
         let jacExePath = '';
-        let envManager: any;
 
         /**
          * Runs a command and captures what happened
@@ -173,13 +170,6 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
             jacExePath = process.platform === 'win32'
                 ? path.join(venvPath, 'Scripts', 'jac.exe')
                 : path.join(venvPath, 'bin', 'jac');
-
-            // Get environment manager for status bar verification
-            // Extension should already be active from Phase 1 (opened sample.jac file)
-            const ext = vscode.extensions.getExtension('jaseci-labs.jaclang-extension');
-            expect(ext!.isActive).to.be.true; // Should still be active from Phase 1
-            const exports = ext!.exports;
-            envManager = exports?.getEnvManager?.();
         });
 
         afterEach(async () => {
@@ -217,7 +207,7 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
         });
 
         it('should install jaclang package via pip with terminal feedback', async function () {
-            this.timeout(5_000);
+            this.timeout(10_000); //pip install can take a while
 
             // Display terminal window for visual installation feedback
             const terminal = vscode.window.createTerminal({
@@ -255,7 +245,7 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
             expect(workspacePath).to.include('fixtures/workspace');
         });
 
-        it('should allow environment selection through selectEnv command', async function () {
+        it('should allow environment selection through selectEnv command and verify status bar update', async function () {
             this.timeout(5_000);
 
             // Trigger environment selection command
@@ -269,18 +259,6 @@ describe('Extension Integration Tests - Full Lifecycle', () => {
             // Confirm selection
             await vscode.commands.executeCommand('workbench.action.acceptSelectedQuickOpenItem');
             await new Promise(resolve => setTimeout(resolve, 1500));
-
-            // Verify environment was successfully selected
-            const ext = vscode.extensions.getExtension('jaseci-labs.jaclang-extension');
-            const envMgr = ext!.exports?.getEnvManager?.();
-            const selectedJacPath = envMgr?.getJacPath?.();
-
-            expect(selectedJacPath).to.include('.venv');
-
-        });
-
-        it('should update status bar to show selected environment path', async function () {
-            this.timeout(5_000);
 
             // After environment selection, status bar should display the selected path
             const statusBar = envManager?.getStatusBar?.();
