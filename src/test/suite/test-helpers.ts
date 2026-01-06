@@ -1,0 +1,77 @@
+/**
+ * Shared Test Utilities
+ * Used by all integration test files to avoid code duplication
+ */
+
+import { spawn } from 'child_process';
+import * as fs from 'fs/promises';
+
+/**
+ * Execute shell commands and capture output
+ * Shared utility for all tests
+ * Returns exit code, stdout, and stderr for verification
+ */
+export async function runCommand(cmd: string, args: string[]) {
+    return await new Promise<{ code: number; commandOutput: string; commandError: string }>((resolve) => {
+        const childProcess = spawn(cmd, args, { shell: false });
+        let commandOutput = '';
+        let commandError = '';
+
+        childProcess.stdout.on('data', (data) => (commandOutput += data.toString()));
+        childProcess.stderr.on('data', (data) => (commandError += data.toString()));
+
+        childProcess.on('error', (err: any) => {
+            commandError += String(err?.message ?? err);
+            resolve({ code: 127, commandOutput, commandError }); // command-not-found
+        });
+
+        childProcess.on('close', (code) => resolve({ code: code ?? 0, commandOutput, commandError }));
+    });
+}
+
+/**
+ * Check if a file or directory exists
+ */
+export async function fileExists(filePath: string): Promise<boolean> {
+    try {
+        await fs.stat(filePath);
+        return true;
+    } catch {
+        return false;
+    }
+}
+
+/**
+ * Finds which Python command works on the local system (Windows, Mac, or Linux)
+ * Different systems have different Python commands, so we try them one by one
+ * Returns: the Python command that works, or null if Python is not installed
+ */
+export async function detectPython(): Promise<{ cmd: string; argsPrefix: string[] } | null> {
+    if (process.platform === 'win32') {
+        try {
+            const versionCheckResult = await runCommand('py', ['-3', '--version']);
+            if (versionCheckResult.code === 0) return { cmd: 'py', argsPrefix: ['-3'] };
+        } catch { }
+    }
+    try {
+        const versionCheckResult = await runCommand('python3', ['--version']);
+        if (versionCheckResult.code === 0) return { cmd: 'python3', argsPrefix: [] };
+    } catch { }
+    try {
+        const versionCheckResult = await runCommand('python', ['--version']);
+        if (versionCheckResult.code === 0) return { cmd: 'python', argsPrefix: [] };
+    } catch { }
+    return null;
+}
+
+/**
+ * Get pipx bin directory where global executables are installed
+ * pipx environment --value PIPX_BIN_DIR returns the bin directory used for app shims
+ */
+export async function getPipxBinDir(): Promise<string> {
+    const r = await runCommand('pipx', ['environment', '--value', 'PIPX_BIN_DIR']);
+    if (r.code !== 0) {
+        throw new Error(`pipx not available or failed: ${r.commandError || r.commandOutput}`);
+    }
+    return r.commandOutput.trim();
+}

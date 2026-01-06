@@ -17,21 +17,12 @@ import * as vscode from 'vscode';
 import { expect } from 'chai';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-
-
+import { fileExists } from './test-helpers';
 
 /**
- * Check if a file or directory exists (Helper Function)
+ * LSP Integration Tests - Language Server Protocol
+ * Tests LSP specific functionality
  */
-async function fileExists(filePath: string) {
-    try {
-        await fs.stat(filePath);
-        return true;
-    } catch {
-        return false;
-    }
-}
-
 describe('LSP Integration Tests - Language Server Protocol', () => {
     let workspacePath: string;
     let venvPath: string;
