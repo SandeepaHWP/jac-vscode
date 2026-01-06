@@ -18,6 +18,29 @@ import { COMMANDS, TERMINAL_NAME } from '../../constants';
 
 let workspacePath: string;
 
+/**
+ * Execute shell commands and capture output
+ * Shared utility for both detectPython() and test suite
+ * Returns exit code, stdout, and stderr for verification
+ */
+async function runCommand(cmd: string, args: string[]) {
+    return await new Promise<{ code: number; commandOutput: string; commandError: string }>((resolve) => {
+        const childProcess = spawn(cmd, args, { shell: false });
+        let commandOutput = '';
+        let commandError = '';
+
+        childProcess.stdout.on('data', (data) => (commandOutput += data.toString()));
+        childProcess.stderr.on('data', (data) => (commandError += data.toString()));
+
+        childProcess.on('error', (err: any) => {
+            commandError += String(err?.message ?? err);
+            resolve({ code: 127, commandOutput, commandError }); // command-not-found
+        });
+
+        childProcess.on('close', (code) => resolve({ code: code ?? 0, commandOutput, commandError }));
+    });
+}
+
 before(() => {
     // Resolve workspace path from VS Code workspace folders
     const folders = vscode.workspace.workspaceFolders;
@@ -32,24 +55,6 @@ before(() => {
  * Returns: the Python command that works, or null if Python is not installed
  */
 async function detectPython(): Promise<{ cmd: string; argsPrefix: string[] } | null> {
-    async function runCommand(cmd: string, args: string[]) {
-        return await new Promise<{ code: number; commandOutput: string; commandError: string }>((resolve) => {
-            const childProcess = spawn(cmd, args, { shell: false });
-            let commandOutput = '';
-            let commandError = '';
-
-            childProcess.stdout.on('data', (data) => (commandOutput += data.toString()));
-            childProcess.stderr.on('data', (data) => (commandError += data.toString()));
-
-            childProcess.on('error', (err: any) => {
-                commandError += String(err?.message ?? err);
-                resolve({ code: 127, commandOutput, commandError });
-            });
-
-            childProcess.on('close', (code) => resolve({ code: code ?? 0, commandOutput, commandError }));
-        });
-    }
-
     if (process.platform === 'win32') {
         try {
             const versionCheckResult = await runCommand('py', ['-3', '--version']);
@@ -76,28 +81,6 @@ describe('Commands Integration Tests - RUN_FILE and Fallback Mechanisms', () => 
     let envManager: any;
     let originalPath = process.env.PATH ?? '';
     let pipxBinDir = '';
-
-    /**
-     * Execute shell commands and capture output
-     * Returns exit code, stdout, and stderr for verification
-     */
-    async function runCommand(cmd: string, args: string[]) {
-        return await new Promise<{ code: number; commandOutput: string; commandError: string }>((resolve) => {
-            const childProcess = spawn(cmd, args, { shell: false });
-            let commandOutput = '';
-            let commandError = '';
-
-            childProcess.stdout.on('data', (data) => (commandOutput += data.toString()));
-            childProcess.stderr.on('data', (data) => (commandError += data.toString()));
-
-            childProcess.on('error', (err: any) => {
-                commandError += String(err?.message ?? err);
-                resolve({ code: 127, commandOutput, commandError }); // command-not-found
-            });
-
-            childProcess.on('close', (code) => resolve({ code: code ?? 0, commandOutput, commandError }));
-        });
-    }
 
     /**
      * Check if a file or directory exists
