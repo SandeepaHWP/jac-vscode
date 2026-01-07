@@ -68,24 +68,24 @@ describe('Commands Integration Tests - RUN_FILE and Fallback Mechanisms', () => 
     it('should execute Jac: Run button and verify complete terminal execution flow', async function () {
         this.timeout(60_000);
 
-        // Setup - Open sample.jac file 
+        // Setup - Open sample.jac file
         const filePath = path.join(workspacePath, 'sample.jac');
         const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
         await vscode.window.showTextDocument(doc);
         expect(vscode.window.activeTextEditor?.document.uri.fsPath).to.equal(filePath);
         await new Promise(resolve => setTimeout(resolve, 500));
 
-        // Cleanup - Remove existing terminals 
+        // Cleanup - Remove existing terminals
         vscode.window.terminals.forEach(t => t.dispose());
         await new Promise(resolve => setTimeout(resolve, 250));
 
-        // Mock terminal and simulate button click 
+        // Mock terminal and simulate button click
         const interactions = await mockTerminalAndCapture(async () => {
             await vscode.commands.executeCommand(COMMANDS.RUN_FILE);
             await new Promise(resolve => setTimeout(resolve, 1500));
         }, TERMINAL_NAME);
 
-        // Verify UI layer (terminal creation & visibility) 
+        // Verify UI layer (terminal creation & visibility)
         expect(interactions.created).to.be.true;
         expect(interactions.shown).to.be.true;
         expect(interactions.name).to.equal(TERMINAL_NAME);
@@ -106,7 +106,7 @@ describe('Commands Integration Tests - RUN_FILE and Fallback Mechanisms', () => 
         const runResult = await runCommand(selectedJacPath, ['run', filePath]);
         expect(runResult.code).to.equal(0, `jac run command failed: ${runResult.commandError}`);
 
-        // Verify program output 
+        // Verify program output
         const output = runResult.commandOutput;
         expect(output).to.include('Hello world!');
         expect(output).to.include('Calculated 3');
