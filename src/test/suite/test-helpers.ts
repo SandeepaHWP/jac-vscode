@@ -1,16 +1,10 @@
-/**
- * Shared Test Utilities
- * Used by all integration test files to avoid code duplication
- */
+// Shared test utilities used across all integration test files
 
 import { spawn } from 'child_process';
 import * as fs from 'fs/promises';
 
-/**
- * Execute shell commands and capture output
- * Shared utility for all tests
- * Returns exit code, stdout, and stderr for verification
- */
+// Execute shell command and capture stdout/stderr
+// Returns: { code: exit code, commandOutput: stdout, commandError: stderr }
 export async function runCommand(cmd: string, args: string[]) {
     return await new Promise<{ code: number; commandOutput: string; commandError: string }>((resolve) => {
         const childProcess = spawn(cmd, args, { shell: false });
@@ -22,16 +16,14 @@ export async function runCommand(cmd: string, args: string[]) {
 
         childProcess.on('error', (err: any) => {
             commandError += String(err?.message ?? err);
-            resolve({ code: 127, commandOutput, commandError }); // command-not-found
+            resolve({ code: 127, commandOutput, commandError }); // 127 = command not found
         });
 
         childProcess.on('close', (code) => resolve({ code: code ?? 0, commandOutput, commandError }));
     });
 }
 
-/**
- * Check if a file or directory exists
- */
+// Check if file or directory exists
 export async function fileExists(filePath: string): Promise<boolean> {
     try {
         await fs.stat(filePath);
@@ -41,46 +33,40 @@ export async function fileExists(filePath: string): Promise<boolean> {
     }
 }
 
-/**
- * Finds which Python command works on the local system (Windows, Mac, or Linux)
- * Different systems have different Python commands, so we try them one by one
- * Returns: the Python command that works, or null if Python is not installed
- */
+// Detect Python command available on system (platform-specific)
+// Windows: py -3, macOS/Linux: python3 or python
 export async function detectPython(): Promise<{ cmd: string; argsPrefix: string[] } | null> {
     if (process.platform === 'win32') {
         try {
-            const versionCheckResult = await runCommand('py', ['-3', '--version']);
-            if (versionCheckResult.code === 0) return { cmd: 'py', argsPrefix: ['-3'] };
+            const result = await runCommand('py', ['-3', '--version']);
+            if (result.code === 0) return { cmd: 'py', argsPrefix: ['-3'] };
         } catch { }
     }
+
     try {
-        const versionCheckResult = await runCommand('python3', ['--version']);
-        if (versionCheckResult.code === 0) return { cmd: 'python3', argsPrefix: [] };
+        const result = await runCommand('python3', ['--version']);
+        if (result.code === 0) return { cmd: 'python3', argsPrefix: [] };
     } catch { }
+
     try {
-        const versionCheckResult = await runCommand('python', ['--version']);
-        if (versionCheckResult.code === 0) return { cmd: 'python', argsPrefix: [] };
+        const result = await runCommand('python', ['--version']);
+        if (result.code === 0) return { cmd: 'python', argsPrefix: [] };
     } catch { }
+
     return null;
 }
 
-/**
- * Get pipx bin directory where global executables are installed
- * pipx environment --value PIPX_BIN_DIR returns the bin directory used for app shims
- */
+// Get pipx bin directory where global executables are exposed
 export async function getPipxBinDir(): Promise<string> {
-    const r = await runCommand('pipx', ['environment', '--value', 'PIPX_BIN_DIR']);
-    if (r.code !== 0) {
-        throw new Error(`pipx not available or failed: ${r.commandError || r.commandOutput}`);
+    const result = await runCommand('pipx', ['environment', '--value', 'PIPX_BIN_DIR']);
+    if (result.code !== 0) {
+        throw new Error(`pipx not available or failed: ${result.commandError || result.commandOutput}`);
     }
-    return r.commandOutput.trim();
+    return result.commandOutput.trim();
 }
 
-/**
- * Mock terminal creation and capture interactions
- * Returns object tracking: created, shown, name, and commands sent to terminal
- * Used by integration tests to verify extension sends commands correctly
- */
+// Mock VS Code terminal creation and track all interactions
+// Captures: terminal creation, show() calls, and sendText() commands
 export async function mockTerminalAndCapture(
     callback: () => Promise<void>,
     terminalName: string = 'Jac'
@@ -90,7 +76,6 @@ export async function mockTerminalAndCapture(
     name: string;
     commands: string[];
 }> {
-    // Import vscode here to avoid circular dependencies
     const vscode = require('vscode');
 
     const interactions = {
@@ -116,13 +101,14 @@ export async function mockTerminalAndCapture(
             sendText: (text: string) => { interactions.commands.push(text); },
             dispose: () => undefined,
         };
+
         return mockTerminal;
     };
 
     try {
         await callback();
     } finally {
-        (vscode.window as any).createTerminal = originalCreateTerminal;
+        (vscode.window as any).createTerminal = originalCreateTerminal; // Restore original
     }
 
     return interactions;
