@@ -49,19 +49,19 @@
         "command": "jaclang-extension.runCurrentFile",
         "key": "ctrl+alt+r",
         "mac": "cmd+alt+r",
-        "when": "editorTextFocus && resourceLangId == jac"
+        "when": "resourceLangId == jac"
       },
       {
         "command": "jaclang-extension.debugCurrentFile",
         "key": "ctrl+alt+d",
         "mac": "cmd+alt+d",
-        "when": "editorTextFocus && resourceLangId == jac"
+        "when": "resourceLangId == jac"
       },
       {
         "command": "jaclang-extension.selectEnv",
         "key": "ctrl+alt+e",
         "mac": "cmd+alt+e",
-        "when": "editorTextFocus && resourceLangId == jac"
+        "when": "resourceLangId == jac"
       }
     ],
     "commands": [
