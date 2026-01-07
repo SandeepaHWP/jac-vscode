@@ -41,16 +41,16 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
      * properly initializes the visual debugger webview
      */
     describe('Test Group: Debug Webview Initialization', () => {
-        
+
         before(async function () {
             this.timeout(20_000);
-            
+
             // Get extension and EnvManager
             const ext = vscode.extensions.getExtension('jaseci-labs.jaclang-extension');
             await ext!.activate();
             const exports = ext!.exports;
             envManager = exports?.getEnvManager?.();
-            
+
             expect(envManager, 'EnvManager should be exposed').to.exist;
         });
 
@@ -60,7 +60,7 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
             // Verify graph.jac exists in workspace
             const filePath = path.join(workspacePath, 'graph.jac');
             expect(await fileExists(filePath)).to.be.true;
-            
+
             // Open the file
             const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
             await vscode.window.showTextDocument(doc);
@@ -80,20 +80,20 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
 
             // Use the programmatic API to add breakpoints (more reliable than toggle command in test env)
             const graphJacUri = editor!.document.uri;
-            
+
             // Create breakpoints at line 10 and 11 (0-indexed: lines 9 and 10)
             const breakpointsToAdd = [
                 new vscode.SourceBreakpoint(new vscode.Location(graphJacUri, new vscode.Position(10, 0)), false),
                 new vscode.SourceBreakpoint(new vscode.Location(graphJacUri, new vscode.Position(11, 0)), false),
             ];
-            
+
             // Add breakpoints directly using the API
             await vscode.debug.addBreakpoints(breakpointsToAdd);
             console.log('Added 2 breakpoints');
-            
+
             // Wait a bit for the breakpoints to register
             await new Promise(resolve => setTimeout(resolve, 1000));
-            
+
             // Verify breakpoints are registered in the debug API
             const allBreakpoints = vscode.debug.breakpoints;
             const graphJacBreakpoints = allBreakpoints.filter(bp => {
@@ -140,7 +140,7 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
             // Verify EnvManager is available for getting graph data
             const envManager = exports?.getEnvManager?.();
             expect(envManager).to.exist;
-            
+
             console.log('✅ Webview infrastructure is ready');
             console.log('✅ Breakpoints set and ready for debug session');
             console.log('✅ Extension exports and EnvManager available');
@@ -164,21 +164,21 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
             };
 
             console.log('Expected graph at breakpoint 1 (line 10):', JSON.stringify(mockGraphData, null, 2));
-            
+
             // Verify structure
             expect(mockGraphData.nodes).to.be.an('array');
             expect(mockGraphData.nodes.length).to.equal(2);
             expect(mockGraphData.edges).to.be.an('array');
             expect(mockGraphData.edges.length).to.equal(1);
-            
+
             // Verify node properties
             const rootNode = mockGraphData.nodes.find(n => n.id === 'root');
             expect(rootNode).to.exist;
             expect(rootNode?.label).to.equal('root');
-            
+
             const weatherNode = mockGraphData.nodes.find(n => n.label === 'Weather');
             expect(weatherNode).to.exist;
-            
+
             console.log('✅ Graph structure at breakpoint 1 is valid');
             console.log('✅ Contains root node and Weather node');
             console.log('✅ Contains edge from root to Weather');
@@ -204,27 +204,27 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
             };
 
             console.log('Expected graph at breakpoint 2 (line 11):', JSON.stringify(mockGraphData, null, 2));
-            
+
             // Verify structure
             expect(mockGraphData.nodes).to.be.an('array');
             expect(mockGraphData.nodes.length).to.equal(3);
             expect(mockGraphData.edges).to.be.an('array');
             expect(mockGraphData.edges.length).to.equal(2);
-            
+
             // Verify node properties
             const rootNode = mockGraphData.nodes.find(n => n.id === 'root');
             expect(rootNode).to.exist;
-            
+
             const weatherNode = mockGraphData.nodes.find(n => n.label === 'Weather');
             expect(weatherNode).to.exist;
-            
+
             const timeNode = mockGraphData.nodes.find(n => n.label === 'Time');
             expect(timeNode).to.exist;
-            
+
             // Verify both edges exist
             const edgesFromRoot = mockGraphData.edges.filter(e => e.from === 'root');
             expect(edgesFromRoot.length).to.equal(2);
-            
+
             console.log('✅ Graph structure at breakpoint 2 is valid');
             console.log('✅ Contains root, Weather, and Time nodes');
             console.log('✅ Contains 2 edges from root');
