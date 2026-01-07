@@ -75,3 +75,55 @@ export async function getPipxBinDir(): Promise<string> {
     }
     return r.commandOutput.trim();
 }
+
+/**
+ * Mock terminal creation and capture interactions
+ * Returns object tracking: created, shown, name, and commands sent to terminal
+ * Used by integration tests to verify extension sends commands correctly
+ */
+export async function mockTerminalAndCapture(
+    callback: () => Promise<void>,
+    terminalName: string = 'Jac'
+): Promise<{
+    created: boolean;
+    shown: boolean;
+    name: string;
+    commands: string[];
+}> {
+    // Import vscode here to avoid circular dependencies
+    const vscode = require('vscode');
+
+    const interactions = {
+        created: false,
+        shown: false,
+        name: '',
+        commands: [] as string[]
+    };
+
+    const originalCreateTerminal = (vscode.window as any).createTerminal;
+
+    (vscode.window as any).createTerminal = (nameOrOptions: any) => {
+        interactions.created = true;
+        const name = typeof nameOrOptions === 'string'
+            ? nameOrOptions
+            : (nameOrOptions?.name ?? terminalName);
+
+        interactions.name = name;
+
+        const mockTerminal: Partial<any> = {
+            name,
+            show: () => { interactions.shown = true; },
+            sendText: (text: string) => { interactions.commands.push(text); },
+            dispose: () => undefined,
+        };
+        return mockTerminal;
+    };
+
+    try {
+        await callback();
+    } finally {
+        (vscode.window as any).createTerminal = originalCreateTerminal;
+    }
+
+    return interactions;
+}
