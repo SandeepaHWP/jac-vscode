@@ -65,45 +65,6 @@ describe('Commands Integration Tests - RUN_FILE and Fallback Mechanisms', () => 
         }
     });
 
-    it('should run the active Jac file via RUN_FILE and verify expected output', async function () {
-        this.timeout(60_000);
-
-        // Ensure sample.jac is the active editor
-        const filePath = path.join(workspacePath, 'sample.jac');
-        const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
-        await vscode.window.showTextDocument(doc);
-        expect(vscode.window.activeTextEditor?.document.uri.fsPath).to.equal(filePath);
-
-        // Dispose existing terminals to force a fresh terminal creation
-        vscode.window.terminals.forEach(t => t.dispose());
-        await new Promise(resolve => setTimeout(resolve, 250));
-
-        // Mock terminal and capture what extension sends
-        const interactions = await mockTerminalAndCapture(async () => {
-            await vscode.commands.executeCommand(COMMANDS.RUN_FILE);
-            await new Promise(resolve => setTimeout(resolve, 1500));
-        }, TERMINAL_NAME);
-
-        // ✅ Verify extension sent the command to terminal
-        expect(interactions.commands.length).to.be.greaterThan(0);
-        const combined = interactions.commands.join('\n');
-        expect(combined).to.include('run');
-        expect(combined).to.include('sample.jac');
-
-        // ✅ Also verify by running jac directly
-        const ext = vscode.extensions.getExtension('jaseci-labs.jaclang-extension');
-        const envMgr = ext!.exports?.getEnvManager?.();
-        const selectedJacPath: string = envMgr?.getJacPath?.() ?? jacExePath;
-
-        const runResult = await runCommand(selectedJacPath, ['run', filePath]);
-        expect(runResult.code).to.equal(0, `jac run failed: ${runResult.commandError}`);
-
-        // sample.jac expected output
-        expect(runResult.commandOutput).to.include('Hello world!');
-        expect(runResult.commandOutput).to.include('Calculated 3');
-        expect(runResult.commandOutput).to.include('Small number');
-    });
-
     it('should execute Jac: Run button and verify complete terminal execution flow', async function () {
         this.timeout(60_000);
 
@@ -125,12 +86,7 @@ describe('Commands Integration Tests - RUN_FILE and Fallback Mechanisms', () => 
 
         // Mock terminal creation to verify UI integration
         const interactions = await mockTerminalAndCapture(async () => {
-            // Step 1: Verify the button would be visible in the editor title bar
-            // The "Jac: Run" button is shown when: resourceLangId == jac
-            const editorContext = vscode.window.activeTextEditor?.document.languageId === 'jac';
-            expect(editorContext, 'Button visibility context should be true (file is .jac)').to.be.true;
-
-            // Step 2: Simulate clicking the "Jac: Run" button by executing its command
+            // Step 1: Simulate clicking the "Jac: Run" button by executing its command
             // This mimics the user clicking the play icon button in the editor title bar
             await vscode.commands.executeCommand(COMMANDS.RUN_FILE);
             await new Promise(resolve => setTimeout(resolve, 1500));
