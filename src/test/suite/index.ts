@@ -25,11 +25,13 @@ export async function run(): Promise<void> {
 				// IMPORTANT: Order is critical for test state sharing:
 				// 1. Environment setup creates venv + installs jaclang
 				// 2. LSP tests need the environment to be active
-				// 3. Commands tests are DESTRUCTIVE (uninstall/delete venv, so must run last)
+				// 3. Debugger tests need LSP + environment to be fully functional
+				// 4. Commands tests are DESTRUCTIVE (uninstall/delete venv, so must run last)
 				const getTestPriority = (filename: string): number => {
 					if (filename.includes('environment.integration')) return 1; // First - Setup venv + jaclang
 					if (filename.includes('lsp.integration')) return 2;         // Second - Test LSP (needs environment)
-					if (filename.includes('commands.integration')) return 3;    // Third - Test commands (includes cleanup)
+					if (filename.includes('debugger.integration')) return 3;    // Third - Test debugger webview (needs environment + LSP)
+					if (filename.includes('commands.integration')) return 4;    // Fourth - Test commands (includes cleanup)
 				};
 
 				// Sort test files by priority
