@@ -40,16 +40,16 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
      * properly initializes the visual debugger webview
      */
     describe('Test Group: Debug Webview Initialization', () => {
-        
+
         before(async function () {
             this.timeout(20_000);
-            
+
             // Get extension and EnvManager
             const ext = vscode.extensions.getExtension('jaseci-labs.jaclang-extension');
             await ext!.activate();
             const exports = ext!.exports;
             envManager = exports?.getEnvManager?.();
-            
+
             expect(envManager, 'EnvManager should be exposed').to.exist;
         });
 
@@ -64,7 +64,7 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
             // Verify graph.jac exists in workspace
             const filePath = path.join(workspacePath, 'graph.jac');
             expect(await fileExists(filePath)).to.be.true;
-            
+
             // Open the file
             const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
             await vscode.window.showTextDocument(doc);
@@ -89,7 +89,7 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
             // This command creates a webview panel which may change focus
             try {
                 await vscode.commands.executeCommand(COMMANDS.VISUALIZE);
-                
+
                 // Wait for webview to initialize
                 await new Promise(resolve => setTimeout(resolve, 3000));
 
