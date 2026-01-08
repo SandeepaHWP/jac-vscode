@@ -41,6 +41,7 @@ async function main() {
 				'--disable-workspace-trust',
 				'--no-sandbox',
 				'--disable-gpu',
+				'--use-gl=swiftshader',
 			],
 		});
 
