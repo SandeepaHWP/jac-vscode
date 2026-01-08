@@ -182,7 +182,7 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
             console.log('✅ Graph structure at breakpoint 1 is valid');
             console.log('✅ Contains root node and Weather node');
             console.log('✅ Contains edge from root to Weather');
-            console.log('✅ This is what the webview will display at line 10');
+            console.log('✅ This is what the webview will display when hitting line 10 breakpoint');
         });
 
         it('should capture and verify graph data structure at breakpoint 2 (line 11)', async function () {
@@ -229,7 +229,7 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
             console.log('✅ Contains root, Weather, and Time nodes');
             console.log('✅ Contains 2 edges from root');
             console.log('✅ This represents complete graph evolution through execution');
-            console.log('✅ This is what the webview will display at line 11');
+            console.log('✅ This is what the webview will display when hitting line 11 breakpoint');
         });
     });
 });
