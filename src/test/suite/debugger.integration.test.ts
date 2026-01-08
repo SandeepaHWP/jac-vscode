@@ -92,7 +92,7 @@ describe('Debugger Integration Tests - JAC Visual Debugger', () => {
             // Check if any webview-related tabs are visible
             const allTabs = vscode.window.tabGroups.all;
             let webviewFound = false;
-            
+
             allTabs.forEach(group => {
                 group.tabs.forEach(tab => {
                     // Check if webview tab exists (will have 'webview' in its label or be from the visualDebugger)
