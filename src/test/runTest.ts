@@ -40,6 +40,7 @@ async function main() {
 				testWorkspacePath,
 				'--disable-workspace-trust',
 				'--no-sandbox',
+				'--headless',
 			],
 		});
 
