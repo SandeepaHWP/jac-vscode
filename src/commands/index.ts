@@ -76,7 +76,7 @@ export function registerAllCommands(context: vscode.ExtensionContext, envManager
 
             // Toggle the mode
             await config.update('enableJacDefinitionProvider', !currentMode, vscode.ConfigurationTarget.Global);
-            
+
             const status = !currentMode ? 'enabled' : 'disabled';
             vscode.window.showInformationMessage(`Jac Definition Provider ${status}. Please reload VS Code for changes to take effect.`);
         })
