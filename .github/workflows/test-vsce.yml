@@ -30,4 +30,4 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y xvfb dbus
 
       - name: Run Integration Tests
-        run: dbus-run-session -- xvfb-run -a npm run test:integration
+        run: xvfb-run -a npm run test:integration
