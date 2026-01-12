@@ -11,13 +11,19 @@ import * as fs from 'fs/promises';
  * Returns exit code, stdout, and stderr for verification
  */
 export async function runCommand(cmd: string, args: string[]) {
-    return await new Promise<{ code: number; commandOutput: string; commandError: string }>((resolve, reject) => {
+    return await new Promise<{ code: number; commandOutput: string; commandError: string }>((resolve) => {
         const childProcess = spawn(cmd, args, { shell: false });
         let commandOutput = '';
         let commandError = '';
+
         childProcess.stdout.on('data', (data) => (commandOutput += data.toString()));
         childProcess.stderr.on('data', (data) => (commandError += data.toString()));
-        childProcess.on('error', reject);
+
+        childProcess.on('error', (err: any) => {
+            commandError += String(err?.message ?? err);
+            resolve({ code: 127, commandOutput, commandError }); // 127 = command not found
+        });
+
         childProcess.on('close', (code) => resolve({ code: code ?? 0, commandOutput, commandError }));
     });
 }
