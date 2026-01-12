@@ -17,7 +17,7 @@ import * as vscode from 'vscode';
 import { expect } from 'chai';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { fileExists } from './test-helpers';
+import { fileExists } from './testUtils';
 
 /**
  * LSP Integration Tests - Language Server Protocol

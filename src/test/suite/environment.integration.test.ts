@@ -14,7 +14,7 @@ import * as vscode from 'vscode';
 import { expect } from 'chai';
 import * as path from 'path';
 import * as fs from 'fs/promises';
-import { runCommand, fileExists, detectPython } from './test-helpers';
+import { runCommand, fileExists, detectPython } from './testUtils';
 
 describe('Extension Integration Tests - Full Lifecycle', () => {
     let workspacePath: string;

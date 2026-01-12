@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { COMMANDS, TERMINAL_NAME } from '../../constants';
-import { runCommand, fileExists, detectPython, getPipxBinDir, mockTerminalAndCapture } from './test-helpers';
+import { runCommand, fileExists, detectPython, getPipxBinDir, mockTerminalAndCapture } from './testUtils';
 
 let workspacePath: string;
 
