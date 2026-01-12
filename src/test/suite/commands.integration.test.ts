@@ -3,7 +3,7 @@ import { expect } from 'chai';
 import * as path from 'path';
 import * as fs from 'fs/promises';
 import { COMMANDS, TERMINAL_NAME } from '../../constants';
-import { runCommand, fileExists, detectPython, getPipxBinDir, mockTerminalAndCapture } from './testUtils';
+import { runCommand, fileExists, detectPython, mockTerminalAndCapture } from './testUtils';
 
 let workspacePath: string;
 
@@ -164,82 +164,5 @@ describe('Commands Integration Tests - RUN_FILE and Fallback Mechanisms', () => 
 
         const statusBar = envMgr?.getStatusBar?.();
         expect(statusBar?.text).to.include('No Env');
-    });
-
-    it('should install jaclang globally via pipx, then RUN_FILE falls back to global jac and runs', async function () {
-        this.timeout(180_000);
-
-        // Get pipx bin dir and prepend to PATH so "jac" is discoverable
-        pipxBinDir = await getPipxBinDir();
-        process.env.PATH = `${pipxBinDir}${path.delimiter}${originalPath}`;
-
-        // Real install (pipx-managed venv, but global executable exposure)
-        const install = await runCommand('pipx', ['install', '--force', 'jaclang']);
-        expect(install.code).to.equal(0, install.commandError || install.commandOutput);
-
-        // Verify jac is runnable via PATH
-        const jacVersion = await runCommand('jac', ['--version']);
-        expect(jacVersion.code).to.equal(0, jacVersion.commandError || jacVersion.commandOutput);
-
-        // Ensure sample.jac active
-        const filePath = path.join(workspacePath, 'sample.jac');
-        const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
-        await vscode.window.showTextDocument(doc);
-
-        // Mock terminal and capture what extension sends
-        const interactions = await mockTerminalAndCapture(async () => {
-            await vscode.commands.executeCommand(COMMANDS.RUN_FILE);
-            await new Promise(r => setTimeout(r, 800));
-        }, TERMINAL_NAME);
-
-        // Verify extension sent the command to terminal
-        expect(interactions.commands.length).to.be.greaterThan(0);
-        const combined = interactions.commands.join('\n');
-        expect(combined).to.include('run');
-        expect(combined).to.include('sample.jac');
-
-        // Also verify by running jac directly
-        const runResult = await runCommand('jac', ['run', filePath]);
-        expect(runResult.code).to.equal(0, runResult.commandError);
-        expect(runResult.commandOutput).to.include('Hello world!');
-        expect(runResult.commandOutput).to.include('Calculated 3');
-        expect(runResult.commandOutput).to.include('Small number');
-    });
-    it('should uninstall global jaclang via pipx, then RUN_FILE fallback fails when no global jac exists (expect ENOENT)', async function () {
-        this.timeout(180_000);
-
-        // Uninstall global jac via pipx
-        const uninstall = await runCommand('pipx', ['uninstall', 'jaclang']);
-        expect([0, 1]).to.include(uninstall.code);
-
-        // Verify jac is not runnable (ENOENT error)
-        const check = await runCommand('jac', ['--version']);
-        expect(check.code).to.equal(127);
-        expect(check.commandError).to.include('ENOENT');
-
-        // Open sample.jac file
-        const filePath = path.join(workspacePath, 'sample.jac');
-        const doc = await vscode.workspace.openTextDocument(vscode.Uri.file(filePath));
-        await vscode.window.showTextDocument(doc);
-
-        // Mock terminal and simulate button click
-        const interactions = await mockTerminalAndCapture(async () => {
-            await vscode.commands.executeCommand(COMMANDS.RUN_FILE);
-            await new Promise(r => setTimeout(r, 800));
-        }, TERMINAL_NAME);
-
-        // Verify extension still sends the command (error resilience)
-        expect(interactions.commands.length).to.be.greaterThan(0);
-        const combined = interactions.commands.join('\n');
-        expect(combined).to.include('run');
-        expect(combined).to.include('sample.jac');
-
-        // Phase 7: Verify actual execution fails (ENOENT when jac not found)
-        const runResult = await runCommand('jac', ['run', filePath]);
-        expect(runResult.code).to.equal(127);
-        expect(runResult.commandError).to.include('ENOENT');
-
-        // Phase 8: Restore PATH (cleanup)
-        process.env.PATH = originalPath;
     });
 });

@@ -63,15 +63,6 @@ export async function detectPython(): Promise<{ cmd: string; argsPrefix: string[
     return null;
 }
 
-// Get pipx bin directory where global executables are exposed
-export async function getPipxBinDir(): Promise<string> {
-    const result = await runCommand('pipx', ['environment', '--value', 'PIPX_BIN_DIR']);
-    if (result.code !== 0) {
-        throw new Error(`pipx not available or failed: ${result.commandError || result.commandOutput}`);
-    }
-    return result.commandOutput.trim();
-}
-
 // Mock VS Code terminal creation and track all interactions
 // Captures: terminal creation, show() calls, and sendText() commands
 export async function mockTerminalAndCapture(
