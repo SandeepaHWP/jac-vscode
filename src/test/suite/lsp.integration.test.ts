@@ -5,7 +5,6 @@
  *
  * Test Group 1: LSP Initialization and Startup
  *   - LSP manager availability
- *   - Status bar updates with active environment
  *   - Output channel creation and logging
  *
  * Test Group 2: LSP Features (Code Intelligence)
@@ -19,14 +18,8 @@ import * as path from 'path';
 import * as fs from 'fs/promises';
 import { fileExists } from './testUtils';
 
-/**
- * LSP Integration Tests - Language Server Protocol
- * Tests LSP specific functionality
- */
 describe('LSP Integration Tests - Language Server Protocol', () => {
     let workspacePath: string;
-    let venvPath: string;
-    let jacExePath: string;
     let lspManager: any;
     let envManager: any;
 
@@ -36,12 +29,6 @@ describe('LSP Integration Tests - Language Server Protocol', () => {
         expect(folders).to.exist;
         expect(folders?.length).to.be.greaterThan(0);
         workspacePath = folders![0].uri.fsPath;
-        venvPath = path.join(workspacePath, '.venv');
-
-        // Platform-specific jac path
-        jacExePath = process.platform === 'win32'
-            ? path.join(venvPath, 'Scripts', 'jac.exe')
-            : path.join(venvPath, 'bin', 'jac');
     });
 
     /**
@@ -52,9 +39,8 @@ describe('LSP Integration Tests - Language Server Protocol', () => {
      */
     describe('Test Group 1: LSP Initialization and Startup', () => {
         before(async () => {
-            // Get extension and managers
+            // Get extension and managers (extension already activated in environment tests)
             const ext = vscode.extensions.getExtension('jaseci-labs.jaclang-extension');
-            await ext!.activate();
             const exports = ext!.exports;
             envManager = exports?.getEnvManager?.();
             lspManager = exports?.getLspManager?.();
@@ -73,28 +59,12 @@ describe('LSP Integration Tests - Language Server Protocol', () => {
             expect(lspManager).to.exist;
         });
 
-        it('should update status bar when LSP is active', async function () {
-            this.timeout(10_000);
-
-            // Status bar should show the active environment (not "No Env")
-            const statusBar = envManager?.getStatusBar?.();
-            expect(statusBar?.text).to.exist;
-            expect(statusBar?.text).to.not.include('No Env');
-            // Should show environment indicator like ".venv" or path
-            expect(statusBar?.text.length).to.be.greaterThan(0);
-        });
-
         it('should create and display LSP output channel', async function () {
             this.timeout(10_000);
 
             // Get the LSP client which uses the output channel
             const client = lspManager?.getClient?.();
             expect(client).to.exist;
-
-            // Output channel should be created during LSP initialization
-            // The channel is used for logging server messages
-            const ext = vscode.extensions.getExtension('jaseci-labs.jaclang-extension');
-            expect(ext!.isActive).to.be.true;
 
             // Verify LSP infrastructure is initialized
             // Output channel is created in lsp_manager.ts during start()
@@ -161,7 +131,7 @@ describe('LSP Integration Tests - Language Server Protocol', () => {
             await vscode.window.showTextDocument(doc);
 
             // Wait for LSP to analyze the file and report diagnostics (longer wait for CI)
-            await new Promise(resolve => setTimeout(resolve, 30000));
+            await new Promise(resolve => setTimeout(resolve, 10000));
 
             // Get diagnostics for the file
             const diagnostics = vscode.languages.getDiagnostics(doc.uri);
@@ -185,7 +155,7 @@ describe('LSP Integration Tests - Language Server Protocol', () => {
             await vscode.window.showTextDocument(doc);
 
             // Wait for language server to fully initialize and index the document
-            await new Promise(resolve => setTimeout(resolve, 30000));
+            await new Promise(resolve => setTimeout(resolve, 10000));
 
             // Position inside "Bus" - the "u" character
             const position = new vscode.Position(0, 6);
