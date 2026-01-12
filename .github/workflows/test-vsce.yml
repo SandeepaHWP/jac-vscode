@@ -26,7 +26,7 @@ jobs:
       - name: Run Unit Tests (Jest)
         run: npm run test:unit
 
-      - name: Install xvfb (virtual display server for Linux)
+      - name: Install xvfb (virtual display for Linux headless)
         run: sudo apt-get update && sudo apt-get install -y xvfb dbus
 
       - name: Run Integration Tests
