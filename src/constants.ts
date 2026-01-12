@@ -6,6 +6,7 @@ export const COMMANDS = {
     DEBUG_FILE: 'jaclang-extension.debugCurrentFile',
     SELECT_ENV: 'jaclang-extension.selectEnv',
     TOGGLE_DEV_MODE: 'jaclang-extension.toggleDeveloperMode',
+    TOGGLE_JAC_DEFINITION: 'jaclang-extension.toggleJacDefinitionProvider',
     RESTART_LSP: 'jaclang-extension.restartLanguageServer',
     GET_JAC_PATH: 'extension.jaclang-extension.getJacPath',
     GET_PYTHON_PATH: 'extension.jaclang-extension.getPythonPath',

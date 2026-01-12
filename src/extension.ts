@@ -4,6 +4,7 @@ import { registerAllCommands } from "./commands";
 import { setupVisualDebuggerWebview } from "./webview/visualDebugger";
 import { LspManager } from "./lsp/lsp_manager";
 import { validateJacExecutable } from "./utils/envDetection";
+import { JacDefinitionProvider } from "./providers/jacDefinitionProvider";
 
 let lspManager: LspManager | undefined;
 let envManager: EnvManager | undefined;
@@ -38,6 +39,18 @@ export async function activate(context: vscode.ExtensionContext) {
     const envManager = new EnvManager(context);
     registerAllCommands(context, envManager);
     await envManager.init();
+
+    const config = vscode.workspace.getConfiguration("jaclang-extension");
+    const enableJacDefinitionProvider = config.get<boolean>("enableJacDefinitionProvider", true);
+
+    if (enableJacDefinitionProvider) {
+      context.subscriptions.push(
+        vscode.languages.registerDefinitionProvider(
+          { language: "python", scheme: "file" },
+          new JacDefinitionProvider()
+        )
+      );
+    }
 
     setupVisualDebuggerWebview(context);
 

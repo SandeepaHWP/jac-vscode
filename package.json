@@ -27,6 +27,10 @@
   "engines": {
     "vscode": "^1.96.0"
   },
+  "activationEvents": [
+    "onLanguage:jac",
+    "onLanguage:python"
+  ],
   "contributes": {
     "configuration": {
       "type": "object",
@@ -41,6 +45,11 @@
           "type": "boolean",
           "default": false,
           "description": "Enable developer mode to use experimental language server features"
+        },
+        "jaclang-extension.enableJacDefinitionProvider": {
+        "type": "boolean",
+        "default": true,
+        "description": "Enable Go to Definition for Python imports that reference Jac modules"
         }
       }
     },
@@ -56,6 +65,10 @@
       {
         "command": "jaclang-extension.toggleDeveloperMode",
         "title": "Jac: Toggle Developer Mode"
+      },
+      {
+        "command": "jaclang-extension.toggleJacDefinitionProvider",
+        "title": "Jac: Toggle Python->Jac Go to Definition"
       },
       {
         "command": "jaclang-extension.restartLanguageServer",
