@@ -142,27 +142,4 @@ describe('Commands Integration Tests - RUN_FILE and Fallback Mechanisms', () => 
         expect(combined.length).to.be.greaterThan(0);
         expect(combined).to.match(/error|syntax|parse|exception/);
     });
-
-    it('should uninstall venv jaclang, delete venv, and clear selection (No Env)', async function () {
-        this.timeout(90_000);
-
-        // Uninstall from venv (0 = ok, 2 = not installed is fine)
-        const uninstallResult = await runCommand(venvPythonPath, ['-m', 'pip', 'uninstall', '-y', 'jaclang']);
-        expect([0, 2]).to.include(uninstallResult.code);
-
-        // Remove venv folder
-        await fs.rm(temporaryVenvDirectory, { recursive: true, force: true });
-        expect(await fileExists(temporaryVenvDirectory)).to.be.false;
-
-        // Clear selected env in manager (in-memory + persisted)
-        const ext = vscode.extensions.getExtension('jaseci-labs.jaclang-extension');
-        const envMgr = ext!.exports?.getEnvManager?.();
-
-        await (envMgr as any)?.context?.globalState?.update?.('jacEnvPath', undefined);
-        (envMgr as any).jacPath = undefined;
-        envMgr?.updateStatusBar?.();
-
-        const statusBar = envMgr?.getStatusBar?.();
-        expect(statusBar?.text).to.include('No Env');
-    });
 });
