@@ -140,6 +140,20 @@
           "light": "./assets/file-icon.svg",
           "dark": "./assets/file-icon.svg"
         }
+      },
+      {
+        "id": "jac-toml",
+        "aliases": [
+          "Jac Config"
+        ],
+        "filenames": [
+          "jac.toml",
+          "jac.local.toml"
+        ],
+        "filenamePatterns": [
+          "jac.*.toml"
+        ],
+        "configuration": "./language-configuration.json"
       }
     ],
     "grammars": [
@@ -147,6 +161,11 @@
         "language": "jac",
         "scopeName": "source.jac",
         "path": "./syntaxes/jac.tmLanguage.json"
+      },
+      {
+        "language": "jac-toml",
+        "scopeName": "source.jac.toml",
+        "path": "./syntaxes/jac-toml.tmLanguage.json"
       }
     ],
     "debuggers": [

@@ -1,0 +1,120 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Jac Config (TOML)",
+  "scopeName": "source.jac.toml",
+  "fileTypes": ["toml"],
+  "patterns": [
+    { "include": "#comment" },
+    { "include": "#table" },
+    { "include": "#array-table" },
+    { "include": "#key-value" }
+  ],
+  "repository": {
+    "comment": {
+      "name": "comment.line.number-sign.jac.toml",
+      "match": "#.*$"
+    },
+    "table": {
+      "name": "meta.section.jac.toml",
+      "match": "^\\s*(\\[)([^\\[\\]]+)(\\])",
+      "captures": {
+        "1": { "name": "punctuation.definition.table.jac.toml" },
+        "2": { "name": "entity.name.section.jac.toml" },
+        "3": { "name": "punctuation.definition.table.jac.toml" }
+      }
+    },
+    "array-table": {
+      "name": "meta.section.array.jac.toml",
+      "match": "^\\s*(\\[\\[)([^\\[\\]]+)(\\]\\])",
+      "captures": {
+        "1": { "name": "punctuation.definition.table.array.jac.toml" },
+        "2": { "name": "entity.name.section.jac.toml" },
+        "3": { "name": "punctuation.definition.table.array.jac.toml" }
+      }
+    },
+    "key-value": {
+      "patterns": [
+        { "include": "#key" },
+        { "include": "#value" }
+      ]
+    },
+    "key": {
+      "name": "variable.other.key.jac.toml",
+      "match": "^\\s*([A-Za-z0-9_\\-\\.]+)\\s*(?==)"
+    },
+    "value": {
+      "patterns": [
+        { "include": "#string-multiline" },
+        { "include": "#string-literal-multiline" },
+        { "include": "#string" },
+        { "include": "#string-literal" },
+        { "include": "#boolean" },
+        { "include": "#datetime" },
+        { "include": "#float" },
+        { "include": "#integer" },
+        { "include": "#array" },
+        { "include": "#inline-table" }
+      ]
+    },
+    "string": {
+      "name": "string.quoted.double.jac.toml",
+      "begin": "\"",
+      "end": "\"",
+      "patterns": [
+        {
+          "name": "constant.character.escape.jac.toml",
+          "match": "\\\\(?:[btnfr\"\\\\]|u[0-9A-Fa-f]{4}|U[0-9A-Fa-f]{8})"
+        }
+      ]
+    },
+    "string-literal": {
+      "name": "string.quoted.single.jac.toml",
+      "begin": "'",
+      "end": "'"
+    },
+    "string-multiline": {
+      "name": "string.quoted.triple.double.jac.toml",
+      "begin": "\"\"\"",
+      "end": "\"\"\""
+    },
+    "string-literal-multiline": {
+      "name": "string.quoted.triple.single.jac.toml",
+      "begin": "'''",
+      "end": "'''"
+    },
+    "boolean": {
+      "name": "constant.language.boolean.jac.toml",
+      "match": "\\b(true|false)\\b"
+    },
+    "datetime": {
+      "name": "constant.other.datetime.jac.toml",
+      "match": "\\d{4}-\\d{2}-\\d{2}(?:[T ]\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})?)?"
+    },
+    "float": {
+      "name": "constant.numeric.float.jac.toml",
+      "match": "[+-]?(?:0|[1-9][0-9_]*)(?:\\.[0-9_]+)?(?:[eE][+-]?[0-9_]+)?|[+-]?(?:inf|nan)"
+    },
+    "integer": {
+      "name": "constant.numeric.integer.jac.toml",
+      "match": "[+-]?(?:0x[0-9A-Fa-f_]+|0o[0-7_]+|0b[01_]+|[0-9][0-9_]*)"
+    },
+    "array": {
+      "name": "meta.array.jac.toml",
+      "begin": "\\[",
+      "end": "\\]",
+      "patterns": [
+        { "include": "#comment" },
+        { "include": "#value" }
+      ]
+    },
+    "inline-table": {
+      "name": "meta.inline-table.jac.toml",
+      "begin": "\\{",
+      "end": "\\}",
+      "patterns": [
+        { "include": "#key" },
+        { "include": "#value" }
+      ]
+    }
+  }
+}
